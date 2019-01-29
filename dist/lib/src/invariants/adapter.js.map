@@ -1,0 +1,1 @@
+{"version":3,"file":"adapter.js","sourceRoot":"","sources":["../../../../src/invariants/adapter.ts"],"names":[],"mappings":";;AAAA,wCAAkE;AAElE;IAAA;IAMA,CAAC;IALU,+CAAmB,GAA1B,UAA2B,MAAW,EAAE,YAAoB;QACxD,IAAI,CAAC,qCAA0B,CAAC,MAAM,CAAC,EAAE;YACrC,MAAM,IAAI,KAAK,CAAC,YAAY,CAAC,CAAC;SACjC;IACL,CAAC;IACL,wBAAC;AAAD,CAAC,AAND,IAMC;AANY,8CAAiB"}

@@ -1,0 +1,194 @@
+import * as Web3 from "web3";
+import { BigNumber } from "../../../utils/bignumber";
+import { ContractsAPI } from "../../apis";
+import { DebtOrderData, DebtRegistryEntry, TxData } from "../../types";
+import { SimpleInterestLoanOrder, SimpleInterestTermsContractParameters } from "../simple_interest_loan_adapter";
+import { Adapter } from "../adapter";
+export interface ERC721CollateralizedSimpleInterestLoanOrder extends SimpleInterestLoanOrder {
+    isEnumerable: boolean;
+    erc721Symbol: string;
+    tokenReference: BigNumber;
+}
+export interface ERC721CollateralizedTermsContractParameters {
+    isEnumerable: BigNumber;
+    erc721ContractIndex: BigNumber;
+    tokenReference: BigNumber;
+}
+export interface ERC721CollateralizedSimpleInterestTermsContractParameters extends SimpleInterestTermsContractParameters, ERC721CollateralizedTermsContractParameters {
+}
+export declare const ERC721CollateralizerAdapterErrors: {
+    INVALID_CONTRACT_INDEX: (tokenIndex: BigNumber) => any;
+    INVALID_IS_ENUMERABLE_FLAG: () => any;
+    INVALID_TOKEN_REFERENCE: () => any;
+    COLLATERAL_NOT_FOUND: (agreementId: string) => any;
+    INVALID_DECIMAL_VALUE: () => any;
+    TOKEN_REFERENCE_EXCEEDS_MAXIMUM: () => any;
+    MISMATCHED_TOKEN_SYMBOL: (tokenAddress: string, symbol: string) => any;
+    MISMATCHED_TERMS_CONTRACT: (termsContractAddress: string) => any;
+    TOKEN_REFERENCE_NOT_FOUND: (tokenReference: BigNumber) => any;
+    COLLATERALIZER_APPROVAL_NOT_GRANTED: () => any;
+    DEBT_NOT_YET_REPAID: (agreementId: string) => any;
+    LOAN_NOT_IN_DEFAULT: (agreementId: string) => any;
+};
+export declare class ERC721CollateralizedSimpleInterestLoanAdapter implements Adapter {
+    private assert;
+    private readonly contractsAPI;
+    private simpleInterestLoanTerms;
+    private collateralizedLoanTerms;
+    private web3Utils;
+    private web3;
+    constructor(web3: Web3, contractsAPI: ContractsAPI);
+    toDebtOrder(collateralizedSimpleInterestLoanOrder: ERC721CollateralizedSimpleInterestLoanOrder): Promise<DebtOrderData>;
+    /**
+     * Validates that the basic invariants have been met for a given
+     * ERC721CollateralizedSimpleInterestLoanOrder.
+     *
+     * @param {ERC721CollateralizedSimpleInterestLoanOrder} loanOrder
+     * @returns {Promise<void>}
+     */
+    validateAsync(loanOrder: ERC721CollateralizedSimpleInterestLoanOrder): Promise<void>;
+    /**
+     * Given a valid debt order, returns a promise for a CollateralizedSimpleInterestLoanOrder,
+     * which includes the DebtOrder information as well as as the contract terms (see documentation
+     * on the `CollateralizedSimpleInterestLoanOrder` interface for more information.)
+     *
+     * @param {DebtOrderData} debtOrderData
+     * @returns {Promise<CollateralizedSimpleInterestLoanOrder>}
+     */
+    fromDebtOrder(debtOrderData: DebtOrderData): Promise<ERC721CollateralizedSimpleInterestLoanOrder>;
+    /**
+     * Given a valid DebtRegistryEntry, returns a CollateralizedSimpleInterestLoanOrder.
+     *
+     * @param {DebtRegistryEntry} entry
+     * @returns {Promise<CollateralizedSimpleInterestLoanOrder>}
+     */
+    fromDebtRegistryEntry(entry: DebtRegistryEntry): Promise<ERC721CollateralizedSimpleInterestLoanOrder>;
+    /**
+     * Given a valid DebtRegistryEntry, returns an array of repayment dates (as unix timestamps.)
+     *
+     * @example
+     *   adapter.getRepaymentSchedule(debtEntry);
+     *   => [1521506879]
+     *
+     * @param {DebtRegistryEntry} debtEntry
+     * @returns {number[]}
+     */
+    getRepaymentSchedule(debtEntry: DebtRegistryEntry): number[];
+    /**
+     * Seizes the collateral from the given debt agreement and
+     * transfers it to the debt agreement's beneficiary.
+     *
+     * @param {string} agreementId
+     * @param {TxData} options
+     * @returns {Promise<string>} The transaction's hash.
+     */
+    seizeCollateralAsync(agreementId: string, options?: TxData): Promise<string>;
+    /**
+     * Returns collateral to the debt agreement's original collateralizer
+     * if and only if the debt agreement's term has lapsed and
+     * the total expected repayment value has been repaid.
+     *
+     * @param {string} agreementId
+     * @param {TxData} options
+     * @returns {Promise<string>} The transaction's hash.
+     */
+    returnCollateralAsync(agreementId: string, options?: TxData): Promise<string>;
+    unpackParameters(termsContractParameters: string): ERC721CollateralizedSimpleInterestTermsContractParameters;
+    packParameters(simpleTermsParams: SimpleInterestTermsContractParameters, collateralTermsParams: ERC721CollateralizedTermsContractParameters): string;
+    /**
+     * Given an agreement ID for a valid collateralized debt agreement, returns true if the
+     * collateral is returnable according to the terms of the agreement - I.E. the debt
+     * has been repaid, and the collateral has not already been withdrawn.
+     *
+     * @example
+     *  await adapter.canReturnCollateral(
+     *     "0x21eee309abd17832e55d231fb4147334081ed6da543d226c035d4b2420c68a7f"
+     *  );
+     *  => true
+     *
+     * @param {string} agreementId
+     * @returns {Promise<boolean>}
+     */
+    canReturnCollateral(agreementId: string): Promise<boolean>;
+    /**
+     * Given an agreement ID for a valid collateralized debt agreement, returns true if the
+     * collateral can be seized by the creditor, according to the terms of the agreement. Collateral
+     * is seizable if the collateral has not been withdrawn yet, and the loan has been in a state
+     * of default.
+     *
+     * @example
+     *  await adapter.canSeizeCollateral(
+     *     "0x21eee309abd17832e55d231fb4147334081ed6da543d226c035d4b2420c68a7f"
+     *  );
+     *  => true
+     *
+     * @param {string} agreementId
+     * @returns {Promise<boolean>}
+     */
+    canSeizeCollateral(agreementId: string): Promise<boolean>;
+    /**
+     * Returns true if the collateral associated with the given agreement ID
+     * has already been seized or returned.
+     *
+     * @example
+     *  await adapter.isCollateralWithdrawn(
+     *    "0x21eee309abd17832e55d231fb4147334081ed6da543d226c035d4b2420c68a7f"
+     *  );
+     *  => true
+     *
+     * @param {string} agreementId
+     * @returns {Promise<boolean>}
+     */
+    isCollateralWithdrawn(agreementId: string): Promise<boolean>;
+    /**
+     * Eventually returns true if the collateral associated with the given debt agreement ID
+     * was returned to the debtor.
+     *
+     * @example
+     * await adapter.isCollateralReturned("0x21eee309abd17832e55d231fb4147334081ed6da543d226c035d4b2420c68a7f")
+     * => true
+     *
+     * @param {string} agreementId
+     * @returns {Promise<boolean>}
+     */
+    isCollateralReturned(agreementId: string): Promise<boolean>;
+    /**
+     * Eventually returns true if the collateral associated with the given debt agreement ID
+     * was seized by the creditor.
+     *
+     * @example
+     * await adapter.isCollateralSeized("0x21eee309abd17832e55d231fb4147334081ed6da543d226c035d4b2420c68a7f")
+     * => true
+     *
+     * @param {string} agreementId
+     * @returns {Promise<boolean>}
+     */
+    isCollateralSeized(agreementId: string): Promise<boolean>;
+    private eventEmittedForAgreement;
+    private assertERC20TokenCorrespondsToSymbol;
+    private assertIsERC721CollateralizedSimpleInterestTermsContract;
+    private assertDebtAgreementExists;
+    /**
+     * Collateral is seizable if the collateral has not been withdrawn yet, and the
+     * loan is in a state of default.
+     *
+     * @param {string} agreementId
+     * @returns {Promise<void>}
+     */
+    private assertCollateralSeizeable;
+    private assertDefaulted;
+    private defaulted;
+    /**
+     * Collateral is returnable if the debt is repaid, and the collateral has not yet
+     * been withdrawn.
+     *
+     * @param {string} agreementId
+     * @returns {Promise<void>}
+     */
+    private assertCollateralReturnable;
+    private assertDebtRepaid;
+    private assertCollateralNotWithdrawn;
+    private assertCollateralApprovalInvariantsAsync;
+    private debtRepaid;
+    private getTxDefaultOptions;
+}
