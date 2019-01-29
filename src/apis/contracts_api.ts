@@ -420,10 +420,9 @@ export class ContractsAPI {
         const addressToContractType = {
             [collateralizedSimpleInterestTermsContract.address]:
                 TERMS_CONTRACT_TYPES.COLLATERALIZED_SIMPLE_INTEREST_LOAN,
-            [simpleInterestTermsContract.address]:
-                TERMS_CONTRACT_TYPES.SIMPLE_INTEREST_LOAN,
+            [simpleInterestTermsContract.address]: TERMS_CONTRACT_TYPES.SIMPLE_INTEREST_LOAN,
             [ERC721CollateralizedSimpleInterestTermsContract.address]:
-                TERMS_CONTRACT_TYPES.ERC721_COLLATERALIZED_SIMPLE_INTEREST_LOAN
+                TERMS_CONTRACT_TYPES.ERC721_COLLATERALIZED_SIMPLE_INTEREST_LOAN,
         };
 
         const termsContractType = addressToContractType[contractAddress];

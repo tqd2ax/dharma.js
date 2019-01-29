@@ -70,6 +70,8 @@ var AdaptersAPI = /** @class */ (function () {
                                 return [2 /*return*/, this.simpleInterestLoan];
                             case constants_1.TERMS_CONTRACT_TYPES.COLLATERALIZED_SIMPLE_INTEREST_LOAN:
                                 return [2 /*return*/, this.collateralizedSimpleInterestLoan];
+                            case constants_1.TERMS_CONTRACT_TYPES.ERC721_COLLATERALIZED_SIMPLE_INTEREST_LOAN:
+                                return [2 /*return*/, this.erc721CollateralizedSimpleInterestLoan];
                             default:
                                 throw new Error(exports.AdaptersErrors.NO_ADAPTER_FOR_TERMS_CONTRACT(termsContractAddress));
                         }
