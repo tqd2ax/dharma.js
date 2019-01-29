@@ -88,8 +88,7 @@ export class ContractsAPI {
         const repaymentRouter = await this.loadRepaymentRouterAsync(transactionOptions);
         const tokenTransferProxy = await this.loadTokenTransferProxyAsync(transactionOptions);
         const collateralizer = await this.loadCollateralizerAsync(transactionOptions);
-        // TODO: Include erc721Collateralizer once deployed on mainnet.
-        // const erc721Collateralizer = await this.loadERC721CollateralizerAsync(transactionOptions);
+        const erc721Collateralizer = await this.loadERC721CollateralizerAsync(transactionOptions);
 
         return {
             debtKernel,
@@ -98,7 +97,7 @@ export class ContractsAPI {
             repaymentRouter,
             tokenTransferProxy,
             collateralizer,
-            // erc721Collateralizer,
+            erc721Collateralizer,
         };
     }
 
