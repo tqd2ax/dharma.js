@@ -424,7 +424,7 @@ var ContractsAPI = /** @class */ (function () {
      */
     ContractsAPI.prototype.getTermsContractType = function (contractAddress) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, simpleInterestTermsContract, collateralizedSimpleInterestTermsContract, addressToContractType, termsContractType;
+            var _a, simpleInterestTermsContract, collateralizedSimpleInterestTermsContract, ERC721CollateralizedSimpleInterestTermsContract, addressToContractType, termsContractType;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, this.loadSimpleInterestTermsContract()];
@@ -433,9 +433,13 @@ var ContractsAPI = /** @class */ (function () {
                         return [4 /*yield*/, this.loadCollateralizedSimpleInterestTermsContract()];
                     case 2:
                         collateralizedSimpleInterestTermsContract = _b.sent();
+                        return [4 /*yield*/, this.loadERC721CollateralizedSimpleInterestTermsContract()];
+                    case 3:
+                        ERC721CollateralizedSimpleInterestTermsContract = _b.sent();
                         addressToContractType = (_a = {},
                             _a[collateralizedSimpleInterestTermsContract.address] = constants_1.TERMS_CONTRACT_TYPES.COLLATERALIZED_SIMPLE_INTEREST_LOAN,
                             _a[simpleInterestTermsContract.address] = constants_1.TERMS_CONTRACT_TYPES.SIMPLE_INTEREST_LOAN,
+                            _a[ERC721CollateralizedSimpleInterestTermsContract.address] = constants_1.TERMS_CONTRACT_TYPES.ERC721_COLLATERALIZED_SIMPLE_INTEREST_LOAN,
                             _a);
                         termsContractType = addressToContractType[contractAddress];
                         if (!termsContractType) {

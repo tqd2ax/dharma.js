@@ -415,11 +415,15 @@ export class ContractsAPI {
     public async getTermsContractType(contractAddress: string): Promise<string> {
         const simpleInterestTermsContract = await this.loadSimpleInterestTermsContract();
         const collateralizedSimpleInterestTermsContract = await this.loadCollateralizedSimpleInterestTermsContract();
+        const ERC721CollateralizedSimpleInterestTermsContract = await this.loadERC721CollateralizedSimpleInterestTermsContract();
 
         const addressToContractType = {
             [collateralizedSimpleInterestTermsContract.address]:
                 TERMS_CONTRACT_TYPES.COLLATERALIZED_SIMPLE_INTEREST_LOAN,
-            [simpleInterestTermsContract.address]: TERMS_CONTRACT_TYPES.SIMPLE_INTEREST_LOAN,
+            [simpleInterestTermsContract.address]:
+                TERMS_CONTRACT_TYPES.SIMPLE_INTEREST_LOAN,
+            [ERC721CollateralizedSimpleInterestTermsContract.address]:
+                TERMS_CONTRACT_TYPES.ERC721_COLLATERALIZED_SIMPLE_INTEREST_LOAN
         };
 
         const termsContractType = addressToContractType[contractAddress];
